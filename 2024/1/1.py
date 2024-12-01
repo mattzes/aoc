@@ -1,4 +1,4 @@
-with open('./2024/input.txt', 'r') as file:
+with open('./2024/1/input.txt', 'r') as file:
     left_list = []
     right_list = []
     
