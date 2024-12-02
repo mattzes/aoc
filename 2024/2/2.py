@@ -28,5 +28,12 @@ def is_report_safe(report: list) -> bool:
 for report in reports:
     if is_report_safe(report):
         count_safe_reports += 1
+    else:
+        for i in range(len(report)):
+            report_copy = report[:]
+            del report_copy[i]
+            if is_report_safe(report_copy):
+                count_safe_reports += 1
+                break
 
 print(f'{count_safe_reports} of {len(reports)} are safe reports')
