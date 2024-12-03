@@ -3,15 +3,21 @@ import re
 with open('./2024/3/input.txt', 'r') as file:
     memory = file.read()
 
-mul_pattern = re.compile(r'mul\([0-9]{1,3},[0-9]{1,3}\)')
+instruction_pattern = re.compile(r'do\(\)|don\'t\(\)|mul\([0-9]{1,3},[0-9]{1,3}\)')
 xy_pattern = re.compile(r'[0-9]{1,3}')
 
-muls = mul_pattern.findall(memory)
+instructions = instruction_pattern.findall(memory)
 
 result = 0
-for mul in muls:
-    x, y = map(int, xy_pattern.findall(mul))
-    result += x * y
+enable = True
+for instruction in instructions:
+    match instruction:
+        case "do()":
+            enable = True
+        case "don't()":
+            enable = False
+        case _ if enable:
+            x, y = map(int, xy_pattern.findall(instruction))
+            result += x * y
 
 print(result)
-
