@@ -15,7 +15,8 @@ directions = [
     (-1, 0), # left
 ]
 
-def mark_steps():
+def count_steps():
+    steps = 1
     position = get_starting_point()
     map[position[1]][position[0]] = 'X'
     
@@ -29,12 +30,9 @@ def mark_steps():
         elif map[position[1]][position[0]] == '#':
             position = (x, y)
             directions.append(directions.pop(0))
-        else:
+        elif map[position[1]][position[0]] != 'X':
             map[position[1]][position[0]] = 'X'
-    return
+            steps += 1
+    return steps
 
-def count_marks() -> int:
-    return sum(row.count('X') for row in map)
-
-mark_steps()
-print(count_marks())
+print(count_steps())
