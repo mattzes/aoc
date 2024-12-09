@@ -3,13 +3,13 @@ from itertools import product
 with open('./2024/7/input.txt', 'r') as file:
     equations = file.read().split('\n')
 
-combinations_store = {1: [('+'), ('*')]}
+combinations_store = {1: [('+'), ('*'), ('||')]}
 
 def get_operator_combinations(length: int) -> list:
     if length in combinations_store :
         return combinations_store[1]
     else:
-        operator = ['+', '*']
+        operator = ['+', '*', '||']
         operator_combinations = []
         for combination in product(operator, repeat=length):
             operator_combinations.append(combination)
@@ -23,8 +23,10 @@ def evaluate(result: int, calibrations: list) -> bool:
         for i in range(1, len(calibrations)):
             if combination[i - 1] == '+':
                 new_result += calibrations[i]
-            else:
+            elif combination[i - 1] == '*':
                 new_result *= calibrations[i]
+            else:
+                new_result = int(str(new_result) + str(calibrations[i]))
         if new_result == result:
             return True
     return False
