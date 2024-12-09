@@ -32,28 +32,41 @@ def calculate_distances(tower_pairs: dict[str, list[tuple[tuple[int, int], tuple
             tower_pairs_with_distances.setdefault(tower_id, []).append((*pair, (row, col)))
     return tower_pairs_with_distances
 
-def calculate_antinodes(tower_pairs_with_distances: dict[str, list[tuple[tuple[int, int], tuple[int, int], tuple[int, int]]]]) -> set[tuple[int, int]]:
+def calculate_antinodes_for_pair(pos: tuple[int, int], distance: tuple[int, int]) -> set[tuple[int, int]]:
+    antinodes = set()
+    antinodes.add(pos)
+    negative_distance = (-distance[0], -distance[1])
+    
+    antinode = pos
+    while True:
+        antinode = (antinode[0] + distance[0], antinode[1] + distance[1])
+        
+        if 0 <= antinode[0] < ROW and 0 <= antinode[1] < COL:
+            antinodes.add(antinode)
+        else:
+            break
+
+    antinode = pos
+    while True:
+        antinode = (antinode[0] + negative_distance[0], antinode[1] + negative_distance[1])
+        
+        if 0 <= antinode[0] < ROW and 0 <= antinode[1] < COL:
+            antinodes.add(antinode)
+        else:
+            break
+    
+    return antinodes
+
+def calculate_antinodes_for_all_pairs(tower_pairs_with_distances: dict[str, list[tuple[tuple[int, int], tuple[int, int], tuple[int, int]]]]) -> set[tuple[int, int]]:
     antinodes = set()
     for pairs in tower_pairs_with_distances.values():
         for pair in pairs:
-            pos1 = pair[0]
-            pos2 = pair[1]
-            
-            distance = pair[2]
-            negative_distance = (-distance[0], -distance[1])
-            
-            antinode1 = (pos1[0] + distance[0], pos1[1] + distance[1])
-            antinode2 = (pos2[0] + negative_distance[0], pos2[1] + negative_distance[1])
-            
-            if 0 <= antinode1[0] < ROW and 0 <= antinode1[1] < COL:
-                antinodes.add(antinode1)
-            if 0 <= antinode2[0] < ROW and 0 <= antinode2[1] < COL:
-                antinodes.add(antinode2)
+            antinodes.update(calculate_antinodes_for_pair(pair[0], pair[2]))
     return antinodes
     
 
 tower_pairs = build_tower_pairs(get_tower_positions())
 tower_pairs_with_distances = calculate_distances(tower_pairs)
 
-calculated_antinodes = calculate_antinodes(tower_pairs_with_distances)
+calculated_antinodes = calculate_antinodes_for_all_pairs(tower_pairs_with_distances)
 print(len(calculated_antinodes))
