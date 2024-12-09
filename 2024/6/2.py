@@ -8,31 +8,47 @@ def get_starting_point() -> tuple:
                 return (x, y)
     return None
 
-directions = [
-    (0, -1), # up
-    (1, 0), # right
-    (0, 1), # down
-    (-1, 0), # left
-]
+
 
 def count_steps():
-    steps = 1
-    position = get_starting_point()
-    map[position[1]][position[0]] = 'X'
-    
-    while True:
-        x, y = position
-        dx, dy = directions[0]
-        position = (x + dx, y + dy)
-        
-        if not (0 <= position[1] < len(map)) or not (0 <= position[0] < len(map[position[1]])):
-            break
-        elif map[position[1]][position[0]] == '#':
-            position = (x, y)
-            directions.append(directions.pop(0))
-        elif map[position[1]][position[0]] != 'X':
-            map[position[1]][position[0]] = 'X'
-            steps += 1
-    return steps
+    possible_obs = 0
+    starting_position = get_starting_point()
+
+    for Y in range(len(map)):
+        for X in range(len(map[0])):
+            directions = [
+                (0, -1), # up
+                (1, 0), # right
+                (0, 1), # down
+                (-1, 0), # left
+            ]
+            x, y = starting_position
+            path = set()
+            
+            if (X, Y) == starting_position:
+                continue
+            
+            while True:
+                if (x, y, directions[0]) in path:
+                    possible_obs += 1
+                    break
+
+                path.add((x, y, directions[0]))
+                dx, dy = directions[0]
+                x_in_front = x + dx
+                y_in_front = y + dy
+                
+                
+                if not (0 <= y_in_front < len(map) and 0 <= x_in_front < len(map[0])):
+                    break
+                
+                if map[y_in_front][x_in_front] == '#' or (x_in_front, y_in_front) == (X, Y):
+                    directions.append(directions.pop(0))
+                else:
+                    x = x_in_front
+                    y = y_in_front
+
+
+    return possible_obs
 
 print(count_steps())
