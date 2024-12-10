@@ -2,38 +2,44 @@ with open('./2024/9/input.txt', 'r') as file:
     disk_map = list(file.read())
 
 # calculate the length of each block and mark them with block index
-turing_tape = []
+turing_tape: list[list[str]]= []
 for i, val in enumerate(disk_map):
-    if i % 2 == 0: # files
-        for j in range(int(val)):
-            turing_tape.append(int(i/2))
-    else: # space
-        for j in range(int(val)):
-            turing_tape.append(".")
+    if val == "0":
+        continue
+    blocks = []
+    turing_tape.append([])
+    for j in range(int(val)):
+        if i % 2 == 0: # files
+            turing_tape[-1].append(str(int(i/2)))
+        else: # space
+            turing_tape[-1].append(".")
 
-# sort dots to the end
+# sort files into spaces
 left_index = 0
-right_index = len(turing_tape) - 1
-while left_index < right_index:
+left_border = 0
+right_border = len(turing_tape) - 1
+
+for right_index in range(right_border, -1, -1):
+    if "." in turing_tape[right_index] or len(set(turing_tape[right_index])) != 1:
+        continue
     
-    while turing_tape[left_index] != ".":
-        left_index += 1
-    
-    while turing_tape[right_index] == ".":
-        right_index -= 1
-    
-    # swap
-    turing_tape[left_index], turing_tape[right_index] = turing_tape[right_index], turing_tape[left_index]
-    # move to next, avoid swap back
-    left_index += 1
-    right_index -= 1
+    for left_index in range(right_index):
+        if turing_tape[left_index].count(".") >= len(turing_tape[right_index]):
+            blocks_to_move = turing_tape[right_index].copy()
+            # replacing the first spaces which are found in the left blocks with the right file blocks
+            turing_tape[left_index] = [blocks_to_move.pop(0) if char == "." and blocks_to_move else char for char in turing_tape[left_index]]
+            turing_tape[right_index] = ["." for _ in range(len(turing_tape[right_index]))]
+            break
 
 # sum up the checksum
 checksum = 0
-for index, block_number in enumerate(turing_tape):
-    if block_number == ".":
-        break
-    checksum += index * int(block_number)
+index = -1
+for blocks in turing_tape:
+    for block in blocks:
+        index += 1
+        if block == ".":
+            continue
+        checksum += index * int(block)
 
 print(checksum)
 
