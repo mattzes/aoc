@@ -12,7 +12,7 @@ directions = [
 ]
 
 def count_posible_paths(pos: tuple[int, int], prev_val: int = 0) -> int:
-    path_count = set()
+    path_count = 0
     for direction in directions:
         new_pos = (pos[0] + direction[0], pos[1] + direction[1])
         
@@ -24,9 +24,9 @@ def count_posible_paths(pos: tuple[int, int], prev_val: int = 0) -> int:
         new_val = topo[new_pos[0]][new_pos[1]]
         if new_val == prev_val + 1:
             if new_val == 9:
-                path_count.add(new_pos)
+                path_count += 1
             else:
-                path_count.update(count_posible_paths(new_pos, new_val))
+                path_count += count_posible_paths(new_pos, new_val)
     return path_count
 
 
@@ -34,6 +34,6 @@ path_count = 0
 for row in range(ROW):
     for col in range(COL):
         if topo[row][col] == 0:
-            path_count += len(count_posible_paths((row, col)))
+            path_count += count_posible_paths((row, col))
 
 print(path_count)
