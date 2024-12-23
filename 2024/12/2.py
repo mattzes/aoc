@@ -52,14 +52,20 @@ class Garden:
                     fence_positions.add(new_pos)
         return fence_positions
     
-    def get_one_side(self, fence_positions, pos, direction_one, direction_two) -> tuple:
+    def get_one_side(self, fence_positions, pos, direction_index) -> tuple:
+        # i know its horrible code... lets say, i was tired -.- and maybee to stupi for this puzzle :D
+        opposite_direction = self.directions[(direction_index + 2) % 4]
+        current_flower = self.garden[pos[0] + opposite_direction[0]][pos[1] + opposite_direction[1]]
+        direction_one = self.directions[(direction_index + 1) % 4]
+        direction_two = self.directions[direction_index - 1]
         side = set()
         side.add(pos)
         for direction in [direction_one, direction_two]:
             current_pos = pos
             while True:
                 new_pos = (current_pos[0] + direction[0], current_pos[1] + direction[1])
-                if new_pos in fence_positions:
+                behind_pos = (new_pos[0] + opposite_direction[0], new_pos[1] + opposite_direction[1])
+                if new_pos in fence_positions and self.garden[behind_pos[0]][behind_pos[1]] == current_flower:
                     side.add(new_pos)
                     current_pos = new_pos
                 else:
@@ -74,16 +80,12 @@ class Garden:
             for i, direction in enumerate(self.directions):
                 new_pos = (flower[0] + direction[0], flower[1] + direction[1])
                 if new_pos in fence_positions:
-                    sides.add((direction, self.get_one_side(fence_positions, new_pos, self.directions[i - 1], self.directions[(i + 1) % 4])))
+                    sides.add((direction, self.get_one_side(fence_positions, new_pos, i)))
         return len(sides)
 
     def get_price(self, cluster) -> int:
         sides = self.count_sides(cluster, self.get_fence_posistions(cluster))
-        
-        result = sides * len(cluster)
-        pos = next(iter(cluster))
-        print(f'{self.garden[pos[0]][pos[1]]},{len(cluster)},{sides},{result}')
-        return result
+        return sides * len(cluster)
 
     def sum_prices(self) -> int:
         return sum([self.get_price(cluster) for cluster in self.flower_clusters])
