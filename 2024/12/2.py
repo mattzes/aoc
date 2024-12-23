@@ -3,7 +3,12 @@ with open('./2024/12/input.txt', 'r') as file:
 
 
 class Garden:
-    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    directions = [
+        (0, 1), # right
+        (1, 0), # down
+        (0, -1), # left
+        (-1, 0) # up
+    ]
     
     def __init__(self, garden):
         self.garden = garden
@@ -38,18 +43,47 @@ class Garden:
                 if cluster:
                     self.flower_clusters.append(cluster)
 
-    def calc_perimeter(self, cluster) -> int:
-        perimeter = 0
+    def get_fence_posistions(self, cluster) -> set:
+        fence_positions = set()
         for flower in cluster:
             for direction in self.directions:
                 new_pos = (flower[0] + direction[0], flower[1] + direction[1])
                 if new_pos not in cluster:
-                    perimeter += 1
-        return perimeter
+                    fence_positions.add(new_pos)
+        return fence_positions
+    
+    def get_one_side(self, fence_positions, pos, direction_one, direction_two) -> tuple:
+        side = set()
+        side.add(pos)
+        for direction in [direction_one, direction_two]:
+            current_pos = pos
+            while True:
+                new_pos = (current_pos[0] + direction[0], current_pos[1] + direction[1])
+                if new_pos in fence_positions:
+                    side.add(new_pos)
+                    current_pos = new_pos
+                else:
+                    break
+        side = list(side)
+        side.sort()
+        return tuple(side)
+    
+    def count_sides(self, cluster, fence_positions) -> int:
+        sides = set()
+        for flower in cluster:
+            for i, direction in enumerate(self.directions):
+                new_pos = (flower[0] + direction[0], flower[1] + direction[1])
+                if new_pos in fence_positions:
+                    sides.add((direction, self.get_one_side(fence_positions, new_pos, self.directions[i - 1], self.directions[(i + 1) % 4])))
+        return len(sides)
 
     def get_price(self, cluster) -> int:
-        perimeter = self.calc_perimeter(cluster)
-        return perimeter * len(cluster)
+        sides = self.count_sides(cluster, self.get_fence_posistions(cluster))
+        
+        result = sides * len(cluster)
+        pos = next(iter(cluster))
+        print(f'{self.garden[pos[0]][pos[1]]},{len(cluster)},{sides},{result}')
+        return result
 
     def sum_prices(self) -> int:
         return sum([self.get_price(cluster) for cluster in self.flower_clusters])
